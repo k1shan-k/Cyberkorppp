@@ -1,0 +1,16 @@
+{
+  "name": "cyberkorp-security-site",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "CyberKorp deep-tech security website",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "preview": "node scripts/serve.mjs",
+    "check": "node scripts/check.mjs",
+    "test": "npm run build && npm run check"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

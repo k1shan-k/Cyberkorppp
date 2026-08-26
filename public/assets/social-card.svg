@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <pattern id="grid" width="44" height="44" patternUnits="userSpaceOnUse"><path d="M44 0H0v44" fill="none" stroke="#6dbaff" stroke-opacity=".08"/></pattern>
+    <linearGradient id="glow" x1="0" x2="1"><stop stop-color="#176ce0"/><stop offset="1" stop-color="#6dbaff"/></linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="#071018"/>
+  <rect width="1200" height="630" fill="url(#grid)"/>
+  <path d="M850 84 1090 210v252L850 588 610 462V210z" fill="#176ce0" fill-opacity=".08" stroke="#6dbaff" stroke-opacity=".4"/>
+  <path d="M734 270 850 210l116 60v132l-116 60-116-60z" fill="none" stroke="#6dbaff" stroke-width="2"/>
+  <path d="M785 336h130M850 270v132" stroke="url(#glow)" stroke-width="2"/>
+  <circle cx="850" cy="336" r="10" fill="#6dbaff"/>
+  <path d="M600 336h120M980 336h160" stroke="#6dbaff" stroke-opacity=".45" stroke-dasharray="5 10"/>
+  <g fill="#fbfbf7" font-family="Arial, Helvetica, sans-serif">
+    <text x="72" y="96" font-size="24" font-weight="700" letter-spacing="7">CYBERKORP</text>
+    <text x="72" y="246" font-size="66" font-weight="500">Security infrastructure</text>
+    <text x="72" y="322" font-size="66" font-weight="500">for the <tspan fill="#6dbaff">post-quantum</tspan> era.</text>
+    <text x="72" y="430" fill="#fbfbf7" fill-opacity=".62" font-size="23">Quantum-safe networking · Cryptographic migration · Cyber defense · Research</text>
+  </g>
+  <rect x="72" y="520" width="10" height="10" fill="#72e7be"/>
+  <text x="100" y="530" fill="#72e7be" font-family="monospace" font-size="18" letter-spacing="3">QUANTUM-SAFE VPN / LIVE</text>
+</svg>
