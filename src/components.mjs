@@ -19,13 +19,7 @@ const chevronIcon = () => `
   </svg>`;
 
 export function logo({ footer = false } = {}) {
-  return `<span class="brand-mark${footer ? ' brand-mark--footer' : ''}" aria-hidden="true">
-      <svg viewBox="0 0 32 32" role="img">
-        <path d="M3.5 7.5 16 1l12.5 6.5v17L16 31 3.5 24.5z" fill="none" stroke="currentColor" stroke-width="1.2"/>
-        <path d="M9 10.5 16 7l7 3.5v11L16 25l-7-3.5z" fill="none" stroke="currentColor" stroke-width="1.2"/>
-        <path d="M11.5 16h9M16 11.5v9" stroke="currentColor" stroke-width="1.2"/>
-      </svg>
-    </span><span class="wordmark">CYBERKORP</span>`;
+  return `<img class="brand-logo" src="/assets/cyberkorp-logo.webp" width="1102" height="196" alt="" decoding="async"${footer ? ' loading="lazy"' : ''}>`;
 }
 
 export function statusBadge(status, { description = false } = {}) {
