@@ -1,5 +1,7 @@
 const root = document.documentElement;
 const body = document.body;
+const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
+const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
 
 const menuButton = document.querySelector('[data-menu-toggle]');
 const navigation = document.querySelector('[data-navigation]');
@@ -48,9 +50,29 @@ document.addEventListener('keydown', (event) => {
   }
 });
 
+const siteHeader = document.querySelector('.site-header');
+const scrollProgress = document.querySelector('[data-scroll-progress]');
+let scrollFrame = 0;
+
+function updatePageState() {
+  const scrollTop = Math.max(window.scrollY, 0);
+  const scrollRange = Math.max(root.scrollHeight - window.innerHeight, 1);
+  const progress = Math.min(scrollTop / scrollRange, 1);
+  siteHeader?.classList.toggle('is-scrolled', scrollTop > 56);
+  if (scrollProgress) scrollProgress.style.transform = `scaleX(${progress})`;
+  scrollFrame = 0;
+}
+
+function requestPageState() {
+  if (!scrollFrame) scrollFrame = window.requestAnimationFrame(updatePageState);
+}
+
+window.addEventListener('scroll', requestPageState, { passive: true });
 window.addEventListener('resize', () => {
   if (window.innerWidth > 900) closeMenu();
-});
+  requestPageState();
+}, { passive: true });
+updatePageState();
 
 function updateClock() {
   const now = new Date();
@@ -73,8 +95,44 @@ for (const explorer of document.querySelectorAll('[data-stack-explorer]')) {
   const tabs = [...explorer.querySelectorAll('[role="tab"]')];
   const panels = [...explorer.querySelectorAll('[role="tabpanel"]')];
 
+  function animatePanel(panel) {
+    if (motionPreference.matches || typeof panel.animate !== 'function') return;
+    panel.getAnimations({ subtree: true }).forEach((animation) => animation.cancel());
+    panel.animate(
+      [
+        { opacity: 0, transform: 'translate3d(0, 10px, 0)' },
+        { opacity: 1, transform: 'translate3d(0, 0, 0)' }
+      ],
+      { duration: 360, easing: 'cubic-bezier(.2,.75,.25,1)', fill: 'backwards' }
+    );
+    const sequence = [
+      panel.querySelector('.stack-panel__head'),
+      panel.querySelector('.stack-panel__body > div'),
+      ...panel.querySelectorAll('.product-ledger li'),
+      panel.querySelector('.stack-panel__foot')
+    ].filter(Boolean);
+    sequence.forEach((node, index) => {
+      node.animate(
+        [
+          { opacity: 0, transform: 'translate3d(-8px, 0, 0)' },
+          { opacity: 1, transform: 'translate3d(0, 0, 0)' }
+        ],
+        {
+          duration: 300,
+          delay: 70 + (index * 45),
+          easing: 'cubic-bezier(.2,.75,.25,1)',
+          fill: 'backwards'
+        }
+      );
+    });
+    panel.classList.add('is-switching');
+    window.setTimeout(() => panel.classList.remove('is-switching'), 560);
+  }
+
   function selectTab(tab, moveFocus = false) {
     const target = tab.dataset.layerTarget;
+    const targetPanel = panels.find((panel) => panel.dataset.layerPanel === target);
+    const changing = targetPanel?.hidden;
     tabs.forEach((candidate) => {
       const selected = candidate === tab;
       candidate.classList.toggle('is-selected', selected);
@@ -82,10 +140,11 @@ for (const explorer of document.querySelectorAll('[data-stack-explorer]')) {
       candidate.tabIndex = selected ? 0 : -1;
     });
     panels.forEach((panel) => {
-      const selected = panel.dataset.layerPanel === target;
+      const selected = panel === targetPanel;
       panel.hidden = !selected;
       panel.classList.toggle('is-selected', selected);
     });
+    if (changing && targetPanel) animatePanel(targetPanel);
     if (moveFocus) tab.focus();
   }
 
@@ -106,7 +165,7 @@ for (const explorer of document.querySelectorAll('[data-stack-explorer]')) {
 }
 
 const revealNodes = [...document.querySelectorAll('.reveal:not(.reveal--immediate)')];
-if ('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+if ('IntersectionObserver' in window && !motionPreference.matches) {
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
       if (!entry.isIntersecting) return;
@@ -117,6 +176,60 @@ if ('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-mot
   revealNodes.forEach((node) => observer.observe(node));
 } else {
   revealNodes.forEach((node) => node.classList.add('is-visible'));
+}
+
+const motionNodes = [...document.querySelectorAll([
+  '.network-diagram',
+  '.architecture-ribbon',
+  '.defense-radar',
+  '.defense-loop',
+  '.inventory-map',
+  '.priority-matrix',
+  '.ai-intelligence__system',
+  '.ai-intel-overview__pipeline',
+  '.intel-graph'
+].join(','))];
+
+motionNodes.forEach((node) => node.classList.add('motion-managed'));
+if ('IntersectionObserver' in window && !motionPreference.matches) {
+  const motionObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      entry.target.classList.toggle('is-inview', entry.isIntersecting);
+      if (entry.isIntersecting) entry.target.classList.add('has-entered');
+    });
+  }, { threshold: 0.06, rootMargin: '120px 0px' });
+  motionNodes.forEach((node) => motionObserver.observe(node));
+} else {
+  motionNodes.forEach((node) => node.classList.add('is-inview', 'has-entered'));
+}
+
+let pointerFrame = 0;
+let pendingPointer = null;
+
+function updatePointerLens() {
+  if (pendingPointer) {
+    const { surface, clientX, clientY } = pendingPointer;
+    const bounds = surface.getBoundingClientRect();
+    surface.style.setProperty('--pointer-x', `${clientX - bounds.left}px`);
+    surface.style.setProperty('--pointer-y', `${clientY - bounds.top}px`);
+    surface.classList.add('has-pointer');
+  }
+  pendingPointer = null;
+  pointerFrame = 0;
+}
+
+function queuePointerUpdate(surface, event) {
+  if (!finePointer.matches || motionPreference.matches) return;
+  pendingPointer = { surface, clientX: event.clientX, clientY: event.clientY };
+  if (!pointerFrame) pointerFrame = window.requestAnimationFrame(updatePointerLens);
+}
+
+for (const diagram of document.querySelectorAll('[data-motion-surface]')) {
+  const surface = diagram.querySelector('.network-diagram__canvas');
+  if (!surface) continue;
+  surface.addEventListener('pointerenter', (event) => queuePointerUpdate(surface, event));
+  surface.addEventListener('pointermove', (event) => queuePointerUpdate(surface, event), { passive: true });
+  surface.addEventListener('pointerleave', () => surface.classList.remove('has-pointer'));
 }
 
 const intentMap = {

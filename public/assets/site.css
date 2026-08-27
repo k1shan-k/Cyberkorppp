@@ -786,3 +786,225 @@ em { color: var(--signal); font-family: inherit; font-style: normal; }
   .status__dot,.hero-runline i,.diagram-live i { border:1px solid currentColor }
   .button,.status,.network-diagram,.stack-explorer { forced-color-adjust:auto }
 }
+
+/* Motion system: control plane, route activation and technical focus */
+.site-header {
+  position: fixed;
+  height: var(--header-height);
+  transition: height 280ms var(--ease);
+}
+.site-header__signal {
+  overflow: hidden;
+  transition: height 280ms var(--ease), opacity 180ms ease, padding 280ms var(--ease);
+}
+.site-header__bar {
+  transition: height 280ms var(--ease), background-color 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
+}
+.site-header.is-scrolled { height: 64px; }
+.site-header.is-scrolled .site-header__signal { height: 0; padding-block: 0; opacity: 0; border-color: transparent; }
+.site-header.is-scrolled .site-header__bar {
+  height: 64px;
+  background: rgba(4, 9, 14, 0.88);
+  border-bottom: 1px solid rgba(109, 186, 255, 0.16);
+  box-shadow: 0 12px 42px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(16px) saturate(125%);
+}
+.site-header__progress { position: absolute; z-index: 3; inset: auto 0 -1px; height: 1px; overflow: hidden; pointer-events: none; }
+.site-header__progress i { display: block; width: 100%; height: 100%; background: linear-gradient(90deg, var(--blue), var(--signal)); transform: scaleX(0); transform-origin: left center; will-change: transform; }
+.site-header .brand { view-transition-name: cyberkorp-brand; }
+
+.network-diagram__canvas { isolation: isolate; }
+.diagram-lens {
+  position: absolute;
+  z-index: 2;
+  left: 0;
+  top: 0;
+  width: 220px;
+  height: 220px;
+  border: 1px solid rgba(109, 186, 255, 0.14);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(109, 186, 255, 0.13), rgba(23, 108, 224, 0.045) 42%, transparent 70%);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate3d(calc(var(--pointer-x, 50%) - 50%), calc(var(--pointer-y, 50%) - 50%), 0);
+  transition: opacity 220ms ease;
+}
+.network-diagram__canvas.has-pointer .diagram-lens { opacity: 1; will-change: transform, opacity; }
+.path-beacon { fill: var(--signal); transform-box: fill-box; transform-origin: center; animation: beacon-core 2.2s ease-in-out infinite; }
+.path-beacon--outer { fill: none; stroke: rgba(109, 186, 255, 0.8); stroke-width: 1; animation-name: beacon-ring; }
+.diagram-handshake {
+  position: absolute;
+  z-index: 5;
+  left: 50%;
+  top: calc(50% + 94px);
+  display: flex;
+  gap: 12px;
+  color: rgba(255, 255, 255, 0.34);
+  font-family: var(--font-mono);
+  font-size: 0.49rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+.diagram-handshake span { display: inline-flex; align-items: center; gap: 5px; }
+.diagram-handshake i { width: 4px; height: 4px; background: currentColor; border-radius: 50%; }
+
+.js .network-diagram.motion-managed:not(.has-entered) .diagram-node { opacity: 0; transform: translate3d(0, 8px, 0) scale(0.98); }
+.js .network-diagram.motion-managed:not(.has-entered) .tunnel-core { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+.js .network-diagram.motion-managed:not(.has-entered) .path-base { stroke-dasharray: 1; stroke-dashoffset: 1; }
+.js .network-diagram.motion-managed:not(.has-entered) .diagram-handshake { opacity: 0; }
+.network-diagram.motion-managed.has-entered .diagram-node { animation: node-online 440ms var(--ease) calc(180ms + (var(--node-order) * 85ms)) both; }
+.network-diagram.motion-managed.has-entered .tunnel-core { animation: core-online 620ms var(--ease) 300ms both; }
+.network-diagram.motion-managed.has-entered .path-base { animation: route-draw 900ms var(--ease) 120ms both; }
+.network-diagram.motion-managed.has-entered .path-base:nth-of-type(2) { animation-delay: 210ms; }
+.network-diagram.motion-managed.has-entered .diagram-handshake { animation: telemetry-online 380ms ease 720ms both; }
+.network-diagram.motion-managed.has-entered .diagram-handshake span { animation: handshake-step 2.8s ease-in-out infinite; }
+.network-diagram.motion-managed.has-entered .diagram-handshake span:nth-child(2) { animation-delay: 180ms; }
+.network-diagram.motion-managed.has-entered .diagram-handshake span:nth-child(3) { animation-delay: 360ms; }
+
+.stack-panel { position: relative; overflow: hidden; }
+.stack-panel.is-switching::after {
+  content: "";
+  position: absolute;
+  z-index: 5;
+  left: 0;
+  right: 0;
+  top: 42px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--blue), var(--signal), transparent);
+  box-shadow: 0 0 16px rgba(23, 108, 224, 0.32);
+  pointer-events: none;
+  animation: panel-scan 500ms var(--ease) both;
+}
+
+.js .architecture-ribbon.motion-managed:not(.has-entered) .architecture-ribbon__item,
+.js .defense-loop.motion-managed:not(.has-entered) > div,
+.js .ai-intel-overview__pipeline.motion-managed:not(.has-entered) > div,
+.js .inventory-map.motion-managed:not(.has-entered) .inventory-map__node,
+.js .intel-graph.motion-managed:not(.has-entered) .intel-graph__node { opacity: 0; transform: translate3d(-9px, 0, 0); }
+.architecture-ribbon.motion-managed.has-entered .architecture-ribbon__item,
+.defense-loop.motion-managed.has-entered > div,
+.ai-intel-overview__pipeline.motion-managed.has-entered > div,
+.inventory-map.motion-managed.has-entered .inventory-map__node,
+.intel-graph.motion-managed.has-entered .intel-graph__node { animation: system-step 440ms var(--ease) both; }
+.architecture-ribbon.motion-managed.has-entered .architecture-ribbon__item:nth-child(2),
+.defense-loop.motion-managed.has-entered > div:nth-of-type(2),
+.ai-intel-overview__pipeline.motion-managed.has-entered > div:nth-of-type(2),
+.inventory-map.motion-managed.has-entered .inventory-map__node:nth-of-type(3),
+.intel-graph.motion-managed.has-entered .intel-graph__node:nth-of-type(3) { animation-delay: 80ms; }
+.architecture-ribbon.motion-managed.has-entered .architecture-ribbon__item:nth-child(3),
+.defense-loop.motion-managed.has-entered > div:nth-of-type(3),
+.ai-intel-overview__pipeline.motion-managed.has-entered > div:nth-of-type(3),
+.inventory-map.motion-managed.has-entered .inventory-map__node:nth-of-type(4),
+.intel-graph.motion-managed.has-entered .intel-graph__node:nth-of-type(4) { animation-delay: 160ms; }
+.architecture-ribbon.motion-managed.has-entered .architecture-ribbon__item:nth-child(4),
+.defense-loop.motion-managed.has-entered > div:nth-of-type(4),
+.ai-intel-overview__pipeline.motion-managed.has-entered > div:nth-of-type(4),
+.inventory-map.motion-managed.has-entered .inventory-map__node:nth-of-type(5),
+.intel-graph.motion-managed.has-entered .intel-graph__node:nth-of-type(5) { animation-delay: 240ms; }
+.architecture-ribbon.motion-managed.has-entered .architecture-ribbon__item:nth-child(5),
+.inventory-map.motion-managed.has-entered .inventory-map__node:nth-of-type(6),
+.intel-graph.motion-managed.has-entered .intel-graph__node:nth-of-type(6) { animation-delay: 320ms; }
+.architecture-ribbon.motion-managed.has-entered .architecture-ribbon__item:nth-child(6),
+.inventory-map.motion-managed.has-entered .inventory-map__node:nth-of-type(7),
+.intel-graph.motion-managed.has-entered .intel-graph__node:nth-of-type(7) { animation-delay: 400ms; }
+.inventory-map.motion-managed.has-entered .inventory-map__node:nth-of-type(8),
+.intel-graph.motion-managed.has-entered .intel-graph__node:nth-of-type(8) { animation-delay: 480ms; }
+.inventory-map.motion-managed.has-entered .inventory-map__node:nth-of-type(9),
+.intel-graph.motion-managed.has-entered .intel-graph__node:nth-of-type(9) { animation-delay: 560ms; }
+.js .ai-intelligence__system.motion-managed:not(.has-entered) .ai-system__sources,
+.js .ai-intelligence__system.motion-managed:not(.has-entered) .ai-system__outputs { opacity: 0; transform: translate3d(0, 10px, 0); }
+.ai-intelligence__system.motion-managed.has-entered .ai-system__sources { animation: system-step 480ms var(--ease) 80ms both; }
+.ai-intelligence__system.motion-managed.has-entered .ai-system__outputs { animation: system-step 480ms var(--ease) 240ms both; }
+.priority-matrix.motion-managed.has-entered .is-priority { animation: priority-lock 720ms ease 180ms both; }
+.defense-radar.motion-managed.has-entered { animation: radar-online 560ms var(--ease) both; }
+
+.js .motion-managed:not(.is-inview),
+.js .motion-managed:not(.is-inview) *,
+.js .motion-managed:not(.is-inview)::before,
+.js .motion-managed:not(.is-inview)::after,
+.js .motion-managed:not(.is-inview) *::before,
+.js .motion-managed:not(.is-inview) *::after { animation-play-state: paused !important; }
+
+@keyframes node-online { from { opacity: 0; transform: translate3d(0, 8px, 0) scale(0.98); } to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); } }
+@keyframes core-online { from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+@keyframes route-draw { from { stroke-dasharray: 1; stroke-dashoffset: 1; } to { stroke-dasharray: 1; stroke-dashoffset: 0; } }
+@keyframes telemetry-online { from { opacity: 0; transform: translate3d(-50%, 5px, 0); } to { opacity: 1; transform: translate3d(-50%, 0, 0); } }
+@keyframes handshake-step { 0%, 18%, 100% { color: rgba(255, 255, 255, 0.34); } 8% { color: var(--mint); } }
+@keyframes beacon-core { 50% { opacity: 0.45; } }
+@keyframes beacon-ring { 0% { opacity: 0; transform: scale(0.55); } 28%, 64% { opacity: 0.75; } 100% { opacity: 0; transform: scale(1.8); } }
+@keyframes panel-scan { from { opacity: 0; transform: translate3d(0, 0, 0); } 20% { opacity: 1; } to { opacity: 0; transform: translate3d(0, 330px, 0); } }
+@keyframes system-step { from { opacity: 0; transform: translate3d(-9px, 0, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
+@keyframes priority-lock { from { background-color: rgba(23, 108, 224, 0.08); } to { background-color: rgba(23, 108, 224, 0.34); } }
+@keyframes radar-online { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
+@keyframes hero-system-online { from { opacity: 0; transform: translate3d(0, 9px, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
+@keyframes page-old { to { opacity: 0; transform: translate3d(0, -5px, 0); } }
+@keyframes page-new { from { opacity: 0; transform: translate3d(0, 5px, 0); } }
+@keyframes ambient-field-shift { to { opacity: 0.65; transform: translate3d(0, 24px, 0); } }
+
+@media (prefers-reduced-motion: no-preference) {
+  .home-hero .hero-kicker,
+  .home-hero h1,
+  .home-hero .hero-copy,
+  .home-hero .hero-actions,
+  .home-hero .hero-proof,
+  .page-hero__eyebrow,
+  .page-hero__main h1,
+  .page-hero__main > p,
+  .page-hero__actions,
+  .page-hero__aside,
+  .page-hero__meta { animation: hero-system-online 620ms var(--ease) both; }
+  .home-hero h1, .page-hero__main h1 { animation-delay: 70ms; }
+  .home-hero .hero-copy, .page-hero__main > p { animation-delay: 140ms; }
+  .home-hero .hero-actions, .page-hero__actions, .page-hero__aside { animation-delay: 210ms; }
+  .home-hero .hero-proof, .page-hero__meta { animation-delay: 300ms; }
+}
+
+@view-transition { navigation: auto; }
+::view-transition-old(root) { animation: page-old 180ms ease both; }
+::view-transition-new(root) { animation: page-new 280ms var(--ease) both; }
+::view-transition-group(cyberkorp-brand) { animation-duration: 280ms; }
+
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .home-hero::before {
+      animation: ambient-field-shift linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 900px;
+    }
+  }
+}
+
+@media (max-width: 900px) {
+  .site-header.is-scrolled .nav { inset-block-start: 64px; }
+  .site-header.is-scrolled .site-header__bar { padding-inline: 0; }
+}
+
+@media (max-width: 640px) {
+  .diagram-lens { display: none; }
+  .diagram-handshake { top: calc(50% + 72px); gap: 7px; font-size: 0.43rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-header, .site-header__signal, .site-header__bar { transition: none; }
+  .diagram-lens, .path-beacon--outer { display: none; }
+  .network-diagram .diagram-node,
+  .architecture-ribbon .architecture-ribbon__item,
+  .defense-loop > div,
+  .ai-intel-overview__pipeline > div,
+  .inventory-map .inventory-map__node,
+  .intel-graph .intel-graph__node,
+  .ai-intelligence__system .ai-system__sources,
+  .ai-intelligence__system .ai-system__outputs { opacity: 1 !important; transform: none !important; }
+  .network-diagram .tunnel-core { opacity: 1 !important; transform: translate(-50%, -50%) !important; }
+  .network-diagram .path-base { stroke-dasharray: none !important; stroke-dashoffset: 0 !important; }
+  .network-diagram .diagram-handshake { opacity: 1 !important; transform: translateX(-50%) !important; }
+  .stack-panel.is-switching::after { display: none; }
+  ::view-transition-old(root), ::view-transition-new(root), ::view-transition-group(cyberkorp-brand) { animation: none; }
+}
+
+@media (forced-colors: active) {
+  .site-header__progress i, .diagram-handshake i, .path-beacon { background: CanvasText; }
+  .diagram-lens { display: none; }
+}

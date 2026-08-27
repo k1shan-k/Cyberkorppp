@@ -105,6 +105,7 @@ function header(active, currentPath) {
       </nav>
       <a class="header-cta" href="/book-demo/"><span>Book a demo</span>${arrowIcon()}</a>
     </div>
+    <div class="site-header__progress" aria-hidden="true"><i data-scroll-progress></i></div>
   </header>`;
 }
 
@@ -221,7 +222,7 @@ export function renderDocument(page, { siteUrl }) {
 }
 
 export function networkDiagram({ compact = false, label = 'Hybrid tunnel architecture' } = {}) {
-  return `<figure class="network-diagram${compact ? ' network-diagram--compact' : ''}" data-network-diagram>
+  return `<figure class="network-diagram${compact ? ' network-diagram--compact' : ''}" data-network-diagram data-motion-surface>
     <figcaption>
       <span>CK / QSVPN / 01</span>
       <span>${escapeHtml(label)}</span>
@@ -229,23 +230,29 @@ export function networkDiagram({ compact = false, label = 'Hybrid tunnel archite
     </figcaption>
     <div class="network-diagram__canvas">
       <div class="diagram-grid" aria-hidden="true"></div>
-      <div class="diagram-node diagram-node--user"><span class="node-icon" aria-hidden="true">U</span><strong>Remote user</strong><small>Access edge</small></div>
-      <div class="diagram-node diagram-node--branch"><span class="node-icon" aria-hidden="true">B</span><strong>Branch</strong><small>Site gateway</small></div>
-      <div class="tunnel-core">
+      <div class="diagram-lens" aria-hidden="true"></div>
+      <div class="diagram-node diagram-node--user" style="--node-order: 0"><span class="node-icon" aria-hidden="true">U</span><strong>Remote user</strong><small>Access edge</small></div>
+      <div class="diagram-node diagram-node--branch" style="--node-order: 1"><span class="node-icon" aria-hidden="true">B</span><strong>Branch</strong><small>Site gateway</small></div>
+      <div class="tunnel-core" style="--node-order: 2">
         <div class="tunnel-core__rings" aria-hidden="true"><i></i><i></i><i></i></div>
         <span>HYBRID</span><strong>ML-KEM<br>+ X25519</strong><small>TLS 1.3</small>
       </div>
-      <div class="diagram-node diagram-node--cloud"><span class="node-icon" aria-hidden="true">C</span><strong>Cloud</strong><small>Private network</small></div>
-      <div class="diagram-node diagram-node--dc"><span class="node-icon" aria-hidden="true">D</span><strong>Data center</strong><small>Protected systems</small></div>
+      <div class="diagram-node diagram-node--cloud" style="--node-order: 3"><span class="node-icon" aria-hidden="true">C</span><strong>Cloud</strong><small>Private network</small></div>
+      <div class="diagram-node diagram-node--dc" style="--node-order: 4"><span class="node-icon" aria-hidden="true">D</span><strong>Data center</strong><small>Protected systems</small></div>
       <svg class="diagram-paths" viewBox="0 0 800 420" preserveAspectRatio="none" aria-hidden="true">
         <defs>
           <linearGradient id="line-gradient" x1="0" x2="1"><stop offset="0" stop-color="#67b7ff"/><stop offset=".5" stop-color="#f5f3eb"/><stop offset="1" stop-color="#67b7ff"/></linearGradient>
         </defs>
-        <path class="path-base" d="M100 105 C240 105 240 210 400 210 S560 105 700 105"/>
-        <path class="path-base" d="M100 315 C240 315 240 210 400 210 S560 315 700 315"/>
+        <path class="path-base" pathLength="1" d="M100 105 C240 105 240 210 400 210 S560 105 700 105"/>
+        <path class="path-base" pathLength="1" d="M100 315 C240 315 240 210 400 210 S560 315 700 315"/>
         <path class="path-signal path-signal--one" d="M100 105 C240 105 240 210 400 210 S560 105 700 105"/>
         <path class="path-signal path-signal--two" d="M100 315 C240 315 240 210 400 210 S560 315 700 315"/>
+        <circle class="path-beacon path-beacon--outer" cx="400" cy="210" r="10"/>
+        <circle class="path-beacon" cx="400" cy="210" r="4"/>
       </svg>
+      <div class="diagram-handshake" aria-hidden="true">
+        <span><i></i>Negotiate</span><span><i></i>Derive</span><span><i></i>Protect</span>
+      </div>
       <span class="diagram-coordinate diagram-coordinate--a">18.5204° N</span>
       <span class="diagram-coordinate diagram-coordinate--b">ROUTE / PROTECTED</span>
     </div>

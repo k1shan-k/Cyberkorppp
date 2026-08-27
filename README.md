@@ -41,6 +41,17 @@ SITE_URL="https://your-verified-domain.example" npm run build
 - Local preview displays the forms, but actual form processing occurs after deployment to Netlify.
 - Without `SITE_URL`, builds intentionally use localhost canonicals and block indexing.
 
+## Deploy on Vercel
+
+The repository also includes `vercel.json`. Vercel uses the **Other** framework preset, skips dependency installation, runs `npm run build`, publishes `dist/`, preserves trailing-slash routes and applies the same baseline security headers as Netlify.
+
+1. In Vercel, choose **Add New → Project** and import this repository.
+2. If this branch should be the temporary production deployment, select it as the Production Branch in the project’s Git settings. Otherwise, each push receives a Vercel Preview deployment.
+3. Add `SITE_URL` as an environment variable using the stable Vercel project URL or verified custom domain, including `https://` and no trailing slash.
+4. Redeploy after setting `SITE_URL` so canonical URLs, social metadata, `sitemap.xml` and `robots.txt` use the public origin.
+
+Important form limitation: Vercel serves the generated form pages, but `data-netlify` submission processing is a Netlify platform feature. The four inquiry forms only process submissions on Netlify. A Vercel-compatible form backend would require a separately approved processor, storage or email integration and is intentionally not included here.
+
 Before launch, replace the implementation notes on `/privacy/` with verified legal, retention, processor and privacy-contact details.
 
 ## Public routes
@@ -72,6 +83,7 @@ Before launch, replace the implementation notes on `/privacy/` with verified leg
 - `scripts/check.mjs`: Route, link, metadata, heading, asset, and claim validation
 - `scripts/serve.mjs`: Local static preview server
 - `netlify.toml`: Netlify build, publish, runtime and response-header configuration
+- `vercel.json`: Vercel build, static output, routing and response-header configuration
 
 ## Content integrity
 
